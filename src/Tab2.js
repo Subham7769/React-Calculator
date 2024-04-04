@@ -1,48 +1,41 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./Tab2.css";
+import "./Tab2.css"; // Import CSS file for styling
 
 function Tab2() {
-  const [messages, setMessages] = useState([]); // State for chat messages
-  const [inputMessage, setInputMessage] = useState(""); // State for user input
+  const [messages, setMessages] = useState([]);
+  const [inputMessage, setInputMessage] = useState("");
 
-  // Function to fetch messages from the API
-  const fetchMessages = async () => {
-    try {
-      const response = await axios.get("https://jsonplaceholder.typicode.com/posts");
-      setMessages(response.data.slice(0, 3)); // Only show the first 3 messages initially
-    } catch (error) {
-      console.error("Error fetching messages:", error);
-    }
-  };
-
-  // Function to simulate sending a message (using a POST request)
-  const sendMessage = async () => {
-    if (inputMessage.trim() !== "") {
-      const newMessage = { userId: 1, title: "User", body: inputMessage };
-      setInputMessage("");
-  
-      try {
-        await axios.post("https://jsonplaceholder.typicode.com/posts", newMessage);
-        // Message sent successfully (simulated)
-        console.log("Message sent:", newMessage);
-  
-        // Fetch updated messages from the API after sending
-        fetchMessages();
-      } catch (error) {
-        console.error("Error sending message:", error);
-      }
-    }
-  };
-w  
-
-  // Fetch messages on initial render
   useEffect(() => {
+    // Fetch initial messages when component mounts
     fetchMessages();
   }, []);
 
+  const fetchMessages = () => {
+    axios.get("https://jsonplaceholder.typicode.com/posts").then((response) => {
+      setMessages(response.data);
+    });
+  };
+
   const handleInputChange = (event) => {
     setInputMessage(event.target.value);
+  };
+
+  const handleSendMessage = () => {
+    const newMessage = { userId: 1, title: "User", body: inputMessage };
+    setMessages([...messages, newMessage]);
+    setInputMessage("");
+
+    // Make a POST request to simulate sending a message
+    axios.post("https://jsonplaceholder.typicode.com/posts", newMessage).then((response) => {
+      console.log("Message sent:", response.data);
+    });
+
+    // For demonstration, simulate bot response after 1 second
+    setTimeout(() => {
+      const botResponse = { userId: 2, title: "Bot", body: "Hello! This is a bot response." };
+      setMessages([...messages, botResponse]);
+    }, 1000);
   };
 
   return (
@@ -63,7 +56,7 @@ w
           placeholder="Type your message..."
           className="input-message"
         />
-        <button onClick={sendMessage} className="send-button">
+        <button onClick={handleSendMessage} className="send-button">
           Send
         </button>
       </div>
